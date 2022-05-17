@@ -19,6 +19,8 @@ public class Database extends SQLiteOpenHelper {
     @Override
     public void onCreate(SQLiteDatabase skyChatDB) {
         skyChatDB.execSQL("create Table USERS(USERNAME TEXT PRIMARY KEY, PASSWORD TEXT)");
+        skyChatDB.execSQL("create Table CHATS(USER TEXT , FRIEND TEXT);");
+        skyChatDB.execSQL("create Table GROUPCHATS(GROUPNAME TEXT PRIMARY KEY, GROUPADMIN TEXT);");
 
     }
 
