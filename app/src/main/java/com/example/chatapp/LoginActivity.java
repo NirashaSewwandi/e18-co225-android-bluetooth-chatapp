@@ -13,9 +13,6 @@ import android.widget.EditText;
 import android.widget.TextView;
 import android.widget.Toast;
 
-import com.google.android.gms.tasks.OnCompleteListener;
-import com.google.android.gms.tasks.Task;
-
 
 public class LoginActivity extends AppCompatActivity {
 
@@ -87,8 +84,6 @@ public class LoginActivity extends AppCompatActivity {
         UserPassword = (EditText) findViewById(R.id.login_password);
         NeedNewAccountLink = (TextView) findViewById(R.id.do_not_have_account_link);
         loadingBar = new ProgressDialog(this);
-
-
 
     }
 
