@@ -8,9 +8,12 @@ import android.bluetooth.BluetoothSocket;
 import android.content.Context;
 import android.os.Handler;
 import android.os.Message;
+import android.util.Log;
 import android.widget.TextView;
 
 import java.io.IOException;
+import java.io.InputStream;
+import java.io.OutputStream;
 import java.util.UUID;
 
 public class ChatUtils {
@@ -18,12 +21,18 @@ public class ChatUtils {
     private BluetoothAdapter bluetoothAdapter;
     public Context context;
     public String status = "Not Connected";
+    public String tempReceiveMessage;
+
+    private SendReceive sendReceive;
+
 
     static final int STATE_LISTENING = 1;
     static final int STATE_CONNECTING = 2;
     static final int STATE_CONNECTED = 3;
     static final int STATE_CONNECTION_FAILED = 4;
     static final int STATE_MESSAGE_RECEIVED = 5;
+
+    public int  CURRENT_STATE = STATE_CONNECTION_FAILED;
 
 
     private static final String APP_NAME = "SkyChat";
@@ -50,10 +59,14 @@ public class ChatUtils {
                     status = "Connection Failed";
                     break;
                 case STATE_MESSAGE_RECEIVED:
-                    /*Do later*/
+                    byte[] readBuffer = (byte[]) message.obj;
+                    tempReceiveMessage = new String(readBuffer,0,message.arg1); // receiving message
                     break;
             }
-            SingleChatActivity.userState.setText(status);
+
+            CURRENT_STATE = message.what;
+           // SingleChatActivity.userState.setText(status);
+            SingleChatActivity.userState.setText(tempReceiveMessage);
 
             return true;
         }
@@ -68,6 +81,10 @@ public class ChatUtils {
     public ClientClass getClientClassInstance(BluetoothDevice device){
         return new ClientClass(device);
     }
+
+   public void Write(String msg){
+        sendReceive.write(msg.getBytes());
+   }
 
 
      private class ServerClass extends Thread{
@@ -104,12 +121,21 @@ public class ChatUtils {
                     message.what = STATE_CONNECTED;
                     handler.sendMessage(message);
 
-                    /* Some code in here for send/receive */
+                    sendReceive = new SendReceive(socket);
+                    sendReceive.start();
 
                     break;
                 }
             }
         }
+
+//         public void cancel() {
+//             try {
+//                 serverSocket.close();
+//             } catch (IOException e) {
+//                 Log.e("Accept->CloseServer", e.toString());
+//             }
+//         }
 
 
     }
@@ -137,6 +163,9 @@ public class ChatUtils {
                 message.what = STATE_CONNECTED;
                 handler.sendMessage(message);
 
+                sendReceive = new SendReceive(socket);
+                sendReceive.start();
+
             } catch (IOException e) {
                 e.printStackTrace();
                 Message message = Message.obtain();
@@ -145,9 +174,63 @@ public class ChatUtils {
             }
         }
 
+//        public void cancel() {
+//            try {
+//                socket.close();
+//            } catch (IOException e) {
+//                Log.e("Accept->CloseServer", e.toString());
+//            }
+//        }
+
     }
 
 
+    private class SendReceive extends Thread
+    {
+        private final BluetoothSocket bluetoothSocket;
+        private final InputStream inputStream;
+        private final OutputStream outputStream;
+
+        public SendReceive(BluetoothSocket socket){
+            bluetoothSocket = socket;
+            InputStream temInputStream = null;
+            OutputStream tempOutputStream = null;
+
+            try {
+                temInputStream = bluetoothSocket.getInputStream();
+                tempOutputStream = bluetoothSocket.getOutputStream();
+            } catch (IOException e) {
+                e.printStackTrace();
+            }
+
+            inputStream = temInputStream;
+            outputStream = tempOutputStream;
+
+        }
+
+        public void run(){
+            byte[] buffer = new byte[1024];
+            int bytes;
+
+            while(true){
+                try {
+                    bytes = inputStream.read(buffer);
+                    handler.obtainMessage(STATE_MESSAGE_RECEIVED, bytes, -1,buffer).sendToTarget();
+                } catch (IOException e) {
+                    e.printStackTrace();
+                }
+            }
+        }
+
+        public void write(byte[] bytes){
+            try {
+                outputStream.write(bytes);
+            } catch (IOException e) {
+                e.printStackTrace();
+            }
+        }
+
+    }
 
 
 

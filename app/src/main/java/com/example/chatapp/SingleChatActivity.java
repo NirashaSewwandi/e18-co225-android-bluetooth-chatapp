@@ -80,6 +80,7 @@ public class SingleChatActivity extends AppCompatActivity {
             @Override
             public void onClick(View view) {
                 finish();
+
             }
         });
 
@@ -106,10 +107,16 @@ public class SingleChatActivity extends AppCompatActivity {
             public void onClick(View view) {
                 enteredMessage = getMessage.getText().toString();
                 if(enteredMessage.isEmpty()){
-
+                    Toast.makeText(SingleChatActivity.this, "Enter a message", Toast.LENGTH_SHORT).show();
+                }
+                else if(chatUtils.CURRENT_STATE == 3 || chatUtils.CURRENT_STATE == 5){
+                    String send_msg = String.valueOf(getMessage.getText());
+                    chatUtils.Write(send_msg);
+                    getMessage.setText("");
+                    getMessage.setHint("Type a message");
                 }
                 else{
-
+                    Toast.makeText(SingleChatActivity.this, "Connection not established", Toast.LENGTH_SHORT).show();
                 }
             }
         });
