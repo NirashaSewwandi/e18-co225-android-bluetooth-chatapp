@@ -2,7 +2,6 @@ package com.example.chatapp;
 
 import android.os.Bundle;
 
-import androidx.annotation.NonNull;
 import androidx.fragment.app.Fragment;
 import androidx.recyclerview.widget.LinearLayoutManager;
 import androidx.recyclerview.widget.RecyclerView;
@@ -10,29 +9,23 @@ import androidx.recyclerview.widget.RecyclerView;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
-import android.widget.ArrayAdapter;
-import android.widget.ImageView;
-import android.widget.TextView;
 
 import java.util.ArrayList;
 
 
-public class ChatsFragment extends Fragment {
+public class GroupChatsFragment extends Fragment {
 
     private RecyclerView recyclerView;
     private RecyclerView.Adapter chatAdapter;
-    private LinearLayoutManager  layoutManager;
+    private LinearLayoutManager layoutManager;
 
     ArrayList<String> names = new ArrayList<>();
-
 
     @Override
     public View onCreateView(LayoutInflater inflater, ViewGroup container,
                              Bundle savedInstanceState) {
-        // Inflate the layout for this fragment
-        View v=inflater.inflate(R.layout.fragment_chats,container,false);
-        recyclerView=v.findViewById(R.id.singleChatRecyclerView);
-
+        View v=inflater.inflate(R.layout.fragment_group_chats,container,false);
+        recyclerView=v.findViewById(R.id.groupleChatRecyclerView);
 
 
         names.clear();
@@ -50,8 +43,4 @@ public class ChatsFragment extends Fragment {
 
         return v;
     }
-
-
-
-
 }

@@ -2,6 +2,7 @@ package com.example.chatapp;
 
 import androidx.appcompat.app.AppCompatActivity;
 import androidx.cardview.widget.CardView;
+import androidx.recyclerview.widget.LinearLayoutManager;
 import androidx.recyclerview.widget.RecyclerView;
 
 import android.bluetooth.BluetoothDevice;
@@ -16,6 +17,8 @@ import android.widget.Toast;
 
 import org.w3c.dom.Text;
 
+import java.util.ArrayList;
+
 public class SingleChatActivity extends AppCompatActivity {
 
     public static TextView userState;
@@ -29,6 +32,9 @@ public class SingleChatActivity extends AppCompatActivity {
     CardView sendMessageCardView;
     RecyclerView msgRecycleView;
     BluetoothDevice device;
+    MessagesAdapter messagesAdapter;
+    LinearLayoutManager linearLayoutManager;
+    ArrayList<Messages> messagesArrayList = new ArrayList<>();
 
     String enteredMessage;
 
@@ -47,14 +53,18 @@ public class SingleChatActivity extends AppCompatActivity {
         backButton = findViewById(R.id.backbuttonofspecificchat);
         chatToolbar = findViewById(R.id.toolbarofspecificchat);
         sendMessageCardView = findViewById(R.id.carviewofsendmessage);
-        msgRecycleView = findViewById(R.id.recyclerviewofspecific);
+        msgRecycleView = findViewById(R.id.recyclerviewofsinglechat);
         listenButton = findViewById(R.id.btn_listen);
         connectButton = findViewById(R.id.btn_connect);
 
         chatUtils = new ChatUtils();
-
         intent = getIntent();
+
+
         String receiverName = intent.getStringExtra("ReceiverName");
+        if(receiverName.length()>12){
+            receiverName = receiverName.substring(0,11)+" ...";
+        }
 
         userName.setText(receiverName);
         userState.setText(chatUtils.status);
@@ -68,6 +78,33 @@ public class SingleChatActivity extends AppCompatActivity {
              device = MainActivity.myBluetooth.getAvailableDevice(Integer.parseInt(receiverIndex));
          }
 
+        /*--------------------------------------------------------------------------------------------------*/
+        /*----- Delete this part ---------*/
+         messagesArrayList.clear();
+        messagesArrayList.add(new Messages("hello", "sent", "1", "5","1"));
+        messagesArrayList.add(new Messages("My name is shehan madhusanka", "sent", "1", "5","1"));
+        messagesArrayList.add(new Messages("Im fine thank you", "receive", "1", "5","1"));
+        messagesArrayList.add(new Messages("hello", "sent", "1", "5","1"));
+        messagesArrayList.add(new Messages("Bye", "receive", "1", "5","1"));
+        /*--------------------------------------------------------------------------------------------------*/
+        /*--------------------------------------------------------------------------------------------------*/
+
+        linearLayoutManager=new LinearLayoutManager(SingleChatActivity.this);
+        linearLayoutManager.setStackFromEnd(true);
+        msgRecycleView.setLayoutManager(linearLayoutManager);
+        messagesAdapter=new MessagesAdapter(SingleChatActivity.this,messagesArrayList);
+        msgRecycleView.setAdapter(messagesAdapter);
+
+
+        /*
+          Write a method to get messages from database.
+        * Take all the messages with sender and user id and other arguments
+        * Create Message instances with that data
+        * add thease instances to messagesArrayList
+        * put  | messagesAdapter.notifyDataSetChanged();| end of the method
+        * */
+
+
         setSupportActionBar(chatToolbar);
         chatToolbar.setOnClickListener(new View.OnClickListener() {
             @Override
@@ -80,7 +117,6 @@ public class SingleChatActivity extends AppCompatActivity {
             @Override
             public void onClick(View view) {
                 finish();
-
             }
         });
 
@@ -112,8 +148,10 @@ public class SingleChatActivity extends AppCompatActivity {
                 else if(chatUtils.CURRENT_STATE == 3 || chatUtils.CURRENT_STATE == 5){
                     String send_msg = String.valueOf(getMessage.getText());
                     chatUtils.Write(send_msg);
-                    getMessage.setText("");
+                    getMessage.setText(null);
                     getMessage.setHint("Type a message");
+
+                    /*In here add the send_msg to database*/
                 }
                 else{
                     Toast.makeText(SingleChatActivity.this, "Connection not established", Toast.LENGTH_SHORT).show();

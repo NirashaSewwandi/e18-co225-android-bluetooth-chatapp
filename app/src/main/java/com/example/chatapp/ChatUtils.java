@@ -60,7 +60,7 @@ public class ChatUtils {
                     break;
                 case STATE_MESSAGE_RECEIVED:
                     byte[] readBuffer = (byte[]) message.obj;
-                    tempReceiveMessage = new String(readBuffer,0,message.arg1); // receiving message
+                    tempReceiveMessage = new String(readBuffer,0,message.arg1); // receiving message - add this to database
                     break;
             }
 
